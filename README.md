@@ -34,7 +34,7 @@ Cagent is built from a modularized version of the Zerebro backend. With Cagent, 
 ## Quickstart
 
 The quickest way to start using Cagent is by using our Replit template:  
-[Replit Template](https://replit.com/@blormdev/Elara?v=1)
+[Replit Template](https://replit.com/@blormdev/cagent?v=1)
 
 1. Fork the template (you will need your own Replit account).  
 2. Click the **Run** button on top.  
