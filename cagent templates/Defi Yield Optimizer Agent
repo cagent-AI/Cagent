@@ -1,0 +1,88 @@
+from web3 import Web3
+import requests
+import json
+
+# Connect to Ethereum Node
+web3 = Web3(Web3.HTTPProvider("https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID"))
+assert web3.isConnected(), "Failed to connect to Ethereum node"
+
+# Predefined Protocols and Contracts
+PROTOCOLS = [
+    {
+        "name": "Aave",
+        "contract_address": "0x3f...",  # Example address
+        "abi_url": "https://api.etherscan.io/api?module=contract&action=getabi&address=0x3f..."
+    },
+    {
+        "name": "Compound",
+        "contract_address": "0x6d...",  # Example address
+        "abi_url": "https://api.etherscan.io/api?module=contract&action=getabi&address=0x6d..."
+    },
+    # Add more protocols as needed
+]
+
+# Get Contract ABI
+def get_contract_abi(abi_url):
+    response = requests.get(abi_url)
+    abi_data = response.json()
+    return json.loads(abi_data["result"])
+
+# Fetch Protocol APYs (Simulated API call)
+def fetch_apy(protocol_name):
+    simulated_apy = {
+        "Aave": 0.045,  # 4.5% APY
+        "Compound": 0.038  # 3.8% APY
+    }
+    return simulated_apy.get(protocol_name, 0)
+
+# Initialize Protocol Contracts
+contracts = {}
+for protocol in PROTOCOLS:
+    abi = get_contract_abi(protocol["abi_url"])
+    contracts[protocol["name"]] = web3.eth.contract(address=protocol["contract_address"], abi=abi)
+
+# Strategy Logic
+class YieldOptimizer:
+    def __init__(self, wallet_address, private_key):
+        self.wallet_address = wallet_address
+        self.private_key = private_key
+
+    def find_best_yield(self):
+        best_protocol = None
+        best_apy = 0
+        for protocol in PROTOCOLS:
+            apy = fetch_apy(protocol["name"])
+            if apy > best_apy:
+                best_apy = apy
+                best_protocol = protocol
+        return best_protocol, best_apy
+
+    def allocate_funds(self, protocol, amount):
+        contract = contracts[protocol["name"]]
+        tx = contract.functions.deposit().buildTransaction({
+            'from': self.wallet_address,
+            'value': amount,
+            'gas': 2000000,
+            'gasPrice': web3.toWei('50', 'gwei'),
+            'nonce': web3.eth.getTransactionCount(self.wallet_address),
+        })
+        signed_tx = web3.eth.account.signTransaction(tx, self.private_key)
+        tx_hash = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        return tx_hash
+
+    def optimize(self, amount):
+        best_protocol, best_apy = self.find_best_yield()
+        if best_protocol:
+            print(f"Allocating funds to {best_protocol['name']} with APY: {best_apy*100:.2f}%")
+            tx_hash = self.allocate_funds(best_protocol, amount)
+            print(f"Transaction hash: {tx_hash.hex()}")
+        else:
+            print("No optimal protocol found")
+
+# Usage
+WALLET_ADDRESS = "0xYourWalletAddress"
+PRIVATE_KEY = "YourPrivateKey"
+AMOUNT = web3.toWei(1, 'ether')
+
+yield_optimizer = YieldOptimizer(WALLET_ADDRESS, PRIVATE_KEY)
+yield_optimizer.optimize(AMOUNT)
