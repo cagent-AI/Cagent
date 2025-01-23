@@ -1,3 +1,22 @@
+## The code assembles the functions of the three agents (DeFi template agents combined) into an integrated system named Cash Workflow Agent, which:
+  1. Manages trades by monitoring token prices.
+  2. Processes arbitrations via smart contract events.
+  3. Optimizes yields by allocating funds to protocols offering the best APY.
+# You can customize parameters such as wallet addresses, private keys, and contract addresses to suit your specific needs.
+
+    .d8888b.                                      888                      d8b     
+   d88P  Y88b                                     888                     Y8P       
+   888    888                                     888             
+   888         8888b.   .d88b.   .d88b.  88888b.  888888           8888b.  888          
+   888            "88b d88P"88b d8P  Y8b 888 "88b 888                 "88b 888     
+   888    888 .d888888 888  888 88888888 888  888 888    (╥ ω ╥)  .d888888 888    
+   Y88b  d88P 888  888 Y88b 888 Y8b.     888  888 Y88b.           888  888 888    
+    "Y8888P"  "Y888888  "Y88888  "Y8888  888  888  "Y888          "Y888888 888      
+                            888                                                    
+                       Y8b d88P                                                   
+                        "Y88P"   
+
+
 import time
 import json
 import requests
