@@ -1,0 +1,95 @@
+import time
+from web3 import Web3
+
+# Connect to the Ethereum blockchain
+INFURA_URL = 'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'
+web3 = Web3(Web3.HTTPProvider(INFURA_URL))
+
+if not web3.isConnected():
+    raise Exception("Unable to connect to the blockchain")
+
+# Wallet and token details
+WALLET_ADDRESS = 'YOUR_WALLET_ADDRESS'
+PRIVATE_KEY = 'YOUR_PRIVATE_KEY'
+TOKEN_ADDRESS = 'TOKEN_CONTRACT_ADDRESS'
+BASE_TOKEN_ADDRESS = 'BASE_TOKEN_CONTRACT_ADDRESS'  # For example, WETH or USDC
+
+# Contract ABI (example for ERC-20 tokens)
+ERC20_ABI = [
+    {
+        "constant": True,
+        "inputs": [{"name": "_owner", "type": "address"}],
+        "name": "balanceOf",
+        "outputs": [{"name": "balance", "type": "uint256"}],
+        "type": "function"
+    },
+    {
+        "constant": False,
+        "inputs": [
+            {"name": "_to", "type": "address"},
+            {"name": "_value", "type": "uint256"}
+        ],
+        "name": "transfer",
+        "outputs": [{"name": "", "type": "bool"}],
+        "type": "function"
+    },
+    {
+        "constant": True,
+        "inputs": [],
+        "name": "decimals",
+        "outputs": [{"name": "", "type": "uint8"}],
+        "type": "function"
+    }
+]
+
+# Instantiate token contracts
+token_contract = web3.eth.contract(address=Web3.toChecksumAddress(TOKEN_ADDRESS), abi=ERC20_ABI)
+base_token_contract = web3.eth.contract(address=Web3.toChecksumAddress(BASE_TOKEN_ADDRESS), abi=ERC20_ABI)
+
+def get_token_balance(address, contract):
+    return contract.functions.balanceOf(Web3.toChecksumAddress(address)).call()
+
+def get_token_decimals(contract):
+    return contract.functions.decimals().call()
+
+def trade_action():
+    # Fetch balances
+    token_balance = get_token_balance(WALLET_ADDRESS, token_contract) / (10 ** get_token_decimals(token_contract))
+    base_balance = get_token_balance(WALLET_ADDRESS, base_token_contract) / (10 ** get_token_decimals(base_token_contract))
+
+    # Simple trading logic
+    token_price = get_token_price()  # Replace with a real price feed
+
+    buy_threshold = 0.9  # Buy if token drops below 90% of reference price
+    sell_threshold = 1.1  # Sell if token rises above 110% of reference price
+    reference_price = 100  # Replace with a real reference price or dynamic calculation
+
+    if token_price < reference_price * buy_threshold and base_balance > 0:
+        amount_to_buy = base_balance / token_price
+        execute_trade(amount_to_buy, "buy")
+
+    elif token_price > reference_price * sell_threshold and token_balance > 0:
+        amount_to_sell = token_balance
+        execute_trade(amount_to_sell, "sell")
+
+def execute_trade(amount, action):
+    if action == "buy":
+        print(f"Buying {amount} tokens")
+        # Add buy logic
+    elif action == "sell":
+        print(f"Selling {amount} tokens")
+        # Add sell logic
+
+def get_token_price():
+    # Placeholder function: Fetch real-time token price from an oracle or exchange API
+    return 100
+
+# Main loop
+if __name__ == "__main__":
+    while True:
+        try:
+            trade_action()
+            time.sleep(60)  # Run every 60 seconds
+        except Exception as e:
+            print(f"Error: {e}")
+            time.sleep(60)
