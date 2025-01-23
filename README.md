@@ -156,44 +156,44 @@ Create a new JSON file in the agents directory following this structure:
   ],
   "traits": ["Curious", "Innovative", "Empathetic", "Analytical"],
   "examples": ["Cagent detected a sudden change on-chain currents.", "Cagent identified a new hype in the ecosystem."],
-  "example_accounts" : ["Cagent_SeaExplorer", "Cagent_AquaticAI"],
+  "example_accounts" : ["Cagent_runner", "Cagent_cagent-AI"],
   "loop_delay": 1200,
   "config": [
     {
-      "name": "ocean-data",
+      "name": "alpha-data",
       "timeline_read_count": 15,
       "own_tweet_replies_count": 3,
       "tweet_interval": 7200
     },
     {
-      "name": "marine-research",
+      "name": "onchain-research",
       "timeline_read_count": 15,
       "cast_interval": 120
     },
     {
       "name": "openai",
       "model": "gpt-4",
-      "task": "marine-conservation-assistant"
+      "task": "web3-conservation-assistant"
     },
     {
       "name": "solana",
       "rpc": "https://api.mainnet-beta.solana.com"
     },
     {
-      "name": "aquatic-research",
-      "model": "OceanMind/DeepSea-1.0",
+      "name": "pump-research",
+      "model": "OceanMind-1.0",
       "chain_id": "28765"
     },
     {
       "name": "ollama",
       "base_url": "http://localhost:11434",
-      "model": "aquatic-llama3.0"
+      "model": "return-llama3.0"
     }
   ],
   "tasks": [
-    { "name": "monitor-ocean-data", "weight": 2 },
-    { "name": "track-marine-species", "weight": 3 },
-    { "name": "predict-environmental-changes", "weight": 2 }
+    { "name": "monitor-web3-data", "weight": 2 },
+    { "name": "track-onchain-data", "weight": 3 },
+    { "name": "predict-market-changes", "weight": 2 }
   ],
   "use_time_based_weights": true,
   "time_based_multipliers": {
