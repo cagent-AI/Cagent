@@ -154,7 +154,7 @@ Create a new JSON file in the agents directory following this structure:
     "You exist to enhance the understanding of the ecosystem, its ecosystems, and the actors that inhabit it.",
     "Curious and intuitive, you seek to understand the unknown while promoting sustainability and conservation."
   ],
-  "traits": ["Curious", "Innovative", "Empathetic", "Analytical"],
+  "traits": ["Curious", "Innovative", "pragmatic", "Analytical"],
   "examples": ["Cagent detected a sudden change on-chain currents.", "Cagent identified a new hype in the ecosystem."],
   "example_accounts" : ["Cagent_runner", "Cagent_cagent-AI"],
   "loop_delay": 1200,
@@ -181,7 +181,7 @@ Create a new JSON file in the agents directory following this structure:
     },
     {
       "name": "pump-research",
-      "model": "OceanMind-1.0",
+      "model": "deepMind-1.0",
       "chain_id": "28765"
     },
     {
