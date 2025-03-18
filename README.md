@@ -1,7 +1,8 @@
 # Cagent 
 
 **Cagent** is an open-source Python framework designed to let you deploy your own agents, powered by OpenAI, Anthropic, and EternalAI LLMs.  
-Cagent is built from a modularized version of the Zerebro backend. With Cagent, you can launch your own agent with similar core functionality as Zerebro. For creative outputs, you'll need to fine-tune your own model.
+Cagent is built from a modularized version of the Zerebro backend. With Cagent, you can launch your own agent with core functionality.
+For creative outputs, you'll need to fine-tune your own model.
 
 ![c-agent](https://github.com/user-attachments/assets/2393a5c1-ec04-4d23-b9df-2c702cfd0f80) 
 
@@ -12,7 +13,7 @@ Cagent is built from a modularized version of the Zerebro backend. With Cagent, 
 ### Core Platform
 - CLI interface for managing agents
 - Modular connection system
-- Blockchain integration with Solana
+- Blockchain integration
 
 ### Social Platform Integrations
 - X
@@ -61,6 +62,7 @@ The quickest way to start using Cagent is by using our Replit template:
 - **Echochambers**: API key and endpoint  
 
 #### Blockchain Integration:
+- **Ethereum Private Key**: (base58 format) for transactions
 - **Solana Private Key**: (base58 format) for transactions  
 - **RPC URL**: Defaults to public endpoints.
 
@@ -94,6 +96,7 @@ configure-connection anthropic  # For Anthropic
 configure-connection farcaster  # For Farcaster
 configure-connection eternalai  # For EternalAI
 configure-connection solana     # For Solana
+configure-connection ethereum   # For EVM
 
 Use list-connections to see all available connections and their status.
 Load your agent (usually one is loaded by default, which can be set using the CLI or in agents/general.json):
