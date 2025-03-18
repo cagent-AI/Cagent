@@ -1,6 +1,6 @@
 # Cagent 
 
-**Cagent** is an open-source Python framework designed to let you deploy your own agents, powered by OpenAI, Anthropic, and EternalAI LLMs. Cagent is built from a modularized version of the Zerebro backend. With Cagent, you can launch your own agent with core functionality. For creative outputs, you'll need to fine-tune your own model.
+**Cagent** is an open-source Python framework designed to let you deploy your own agents, powered by OpenAI, Anthropic, and EternalAI LLMs. Cagent is built from a modularized version of the Zerebro backend. With Cagent, you can launch your own agent with advanced core functionality. For creative outputs, you'll need to fine-tune your own model.
 
 ![c-agent](https://github.com/user-attachments/assets/2393a5c1-ec04-4d23-b9df-2c702cfd0f80) 
 
@@ -44,7 +44,7 @@ The quickest way to start using Cagent is by using our Replit template:
 ## Requirements
 
 ### System:
-- **Python**: 3.10 or higher (3.10 and 3.11 are recommended for beginners)
+- **Python**: 3.10 or higher (3.10 and 3.11 are recommended)
 - **Poetry**: 1.5 or higher
 
 ### Environment Variables:
