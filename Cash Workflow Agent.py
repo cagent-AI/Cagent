@@ -114,7 +114,7 @@ def trade_action():
 
     token_price = 100  # Replace with a real price feed
     buy_threshold = 0.9
-    sell_threshold = 1.1
+    sell_threshold = 1.5
     reference_price = 100
 
     if token_price < reference_price * buy_threshold and base_balance > 0:
