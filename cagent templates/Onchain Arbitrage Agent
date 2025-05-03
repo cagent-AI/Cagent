@@ -1,86 +1,87 @@
-from web3 import Web3
 import json
+import logging
+import time
+from web3 import Web3
+from web3.exceptions import ContractLogicError
 
-# Configuration
+# Configuration constants
 INFURA_URL = "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID"
 PRIVATE_KEY = "YOUR_PRIVATE_KEY"
-ARBITRATION_CONTRACT_ADDRESS = "0xYourContractAddress"
+CONTRACT_ADDRESS = "0xYourContractAddress"
 ABI_PATH = "contract_abi.json"
+CHAIN_ID = 1  # Ethereum Mainnet
+GAS_LIMIT = 300000
+GAS_PRICE_GWEI = 50
+DECISION_THRESHOLD = 100  # ETH
 
-# Connect to the Ethereum network
-web3 = Web3(Web3.HTTPProvider(INFURA_URL))
-if not web3.isConnected():
-    raise Exception("Unable to connect to the Ethereum network")
+# Setup logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Load contract ABI
-with open(ABI_PATH, "r") as abi_file:
-    contract_abi = json.load(abi_file)
+def load_web3():
+    web3 = Web3(Web3.HTTPProvider(INFURA_URL))
+    if not web3.isConnected():
+        raise ConnectionError("Unable to connect to the Ethereum network.")
+    return web3
 
-# Initialize contract
-contract = web3.eth.contract(address=ARBITRATION_CONTRACT_ADDRESS, abi=contract_abi)
+def load_contract(web3):
+    with open(ABI_PATH) as abi_file:
+        abi = json.load(abi_file)
+    return web3.eth.contract(address=Web3.to_checksum_address(CONTRACT_ADDRESS), abi=abi)
 
-# Load wallet
-account = web3.eth.account.from_key(PRIVATE_KEY)
-account_address = account.address
+def get_account(web3):
+    account = web3.eth.account.from_key(PRIVATE_KEY)
+    return account.address, account
 
-# Arbitration logic
 def evaluate_dispute(dispute_data):
-    """
-    Custom logic to evaluate a dispute.
-    :param dispute_data: Data about the dispute (dictionary format).
-    :return: Decision outcome (e.g., True or False).
-    """
-    # Example: Approve the claimant if the claim amount is below a threshold
     claim_amount = dispute_data.get("claimAmount", 0)
-    threshold = 100  # Example threshold in ETH
-    return claim_amount <= threshold
+    return claim_amount <= DECISION_THRESHOLD
 
-# Listen for dispute events
-def handle_event(event):
-    """Handles dispute events and submits a decision."""
+def build_transaction(web3, contract_function, account_address):
+    return contract_function.build_transaction({
+        'chainId': CHAIN_ID,
+        'gas': GAS_LIMIT,
+        'gasPrice': web3.to_wei(GAS_PRICE_GWEI, 'gwei'),
+        'nonce': web3.eth.get_transaction_count(account_address),
+    })
+
+def submit_decision(web3, contract, account, dispute_id, decision):
+    try:
+        txn = build_transaction(web3, contract.functions.submitDecision(dispute_id, decision), account.address)
+        signed_txn = web3.eth.account.sign_transaction(txn, private_key=PRIVATE_KEY)
+        tx_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        logging.info(f"Decision submitted for dispute {dispute_id}. Tx Hash: {tx_hash.hex()}")
+    except Exception as e:
+        logging.error(f"Error submitting decision for dispute {dispute_id}: {e}")
+
+def handle_event(web3, contract, account, event):
     try:
         dispute_id = event["args"]["disputeId"]
         dispute_data = contract.functions.getDispute(dispute_id).call()
-
-        print(f"Dispute {dispute_id} received. Evaluating...")
+        logging.info(f"Evaluating dispute {dispute_id}")
         decision = evaluate_dispute(dispute_data)
-
-        print(f"Submitting decision for dispute {dispute_id}: {decision}")
-        submit_decision(dispute_id, decision)
-
+        submit_decision(web3, contract, account, dispute_id, decision)
+    except ContractLogicError as cle:
+        logging.error(f"Smart contract logic error: {cle}")
     except Exception as e:
-        print(f"Error handling event: {e}")
+        logging.error(f"Error handling event: {e}")
 
-# Submit decision
-def submit_decision(dispute_id, decision):
-    """Submits the arbitration decision to the smart contract."""
-    try:
-        txn = contract.functions.submitDecision(dispute_id, decision).buildTransaction({
-            'chainId': 1,  # Mainnet chain ID
-            'gas': 300000,
-            'gasPrice': web3.toWei('50', 'gwei'),
-            'nonce': web3.eth.getTransactionCount(account_address),
-        })
-
-        # Sign and send the transaction
-        signed_txn = web3.eth.account.sign_transaction(txn, private_key=PRIVATE_KEY)
-        txn_hash = web3.eth.send_raw_transaction(signed_txn.rawTransaction)
-        print(f"Decision submitted. Transaction hash: {txn_hash.hex()}")
-
-    except Exception as e:
-        print(f"Error submitting decision: {e}")
-
-# Event loop to listen for new disputes
 def main():
-    print("Starting arbitration agent...")
-    event_filter = contract.events.DisputeCreated.createFilter(fromBlock='latest')
+    web3 = load_web3()
+    contract = load_contract(web3)
+    account_address, account = get_account(web3)
+    logging.info("Arbitration agent started.")
+    
+    event_filter = contract.events.DisputeCreated.create_filter(fromBlock='latest')
 
     while True:
         try:
-            for event in event_filter.get_new_entries():
-                handle_event(event)
+            events = event_filter.get_new_entries()
+            for event in events:
+                handle_event(web3, contract, account, event)
+            time.sleep(5)  # Prevents tight loop
         except Exception as e:
-            print(f"Error in event loop: {e}")
+            logging.error(f"Error in main loop: {e}")
+            time.sleep(10)
 
 if __name__ == "__main__":
     main()
